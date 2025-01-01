@@ -17,7 +17,7 @@ if __name__ == "__main__":
     cfg = Config()
     cfg.INPUT_HEIGHT = 256  # Example height
     cfg.INPUT_WIDTH = 256   # Example width
-    cfg.DATASET_PATH = "/Users/anoushka/Desktop/Projects/SurfaceDefectDL/MyTrainDataset"  # Update with your dataset path
+    cfg.DATASET_PATH = "/Users/anoushka/Desktop/Projects/SurfaceDefectDL/MyTrainDataset"  # Updated with the dataset path
 
     # Initialize the dataset
     kind = "TRAIN"

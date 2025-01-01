@@ -1,8 +1,8 @@
 import os
-from PIL import Image
-from torchvision.transforms import ToTensor, Resize
 import torch
+from PIL import Image
 from data.dataset import Dataset
+from torchvision.transforms import ToTensor, Resize
 
 
 class TrainingDataset(Dataset):

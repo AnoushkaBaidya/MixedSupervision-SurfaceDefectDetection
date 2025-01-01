@@ -1,5 +1,6 @@
-from end2endnew import End2End
 import argparse
+# Change this to make sure it is compatible with our DataSet
+from end2endnew import End2End
 from config import Config
 
 
