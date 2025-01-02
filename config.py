@@ -73,7 +73,7 @@ class Config:
             self.INPUT_WIDTH = 1600
             self.INPUT_HEIGHT = 256
             self.INPUT_CHANNELS = 1
-
+            
             self.VALIDATE_ON_TEST = False
             self.USE_BEST_MODEL = True
             print("Will use best model according to validation loss, validation is not performed on test set!")
