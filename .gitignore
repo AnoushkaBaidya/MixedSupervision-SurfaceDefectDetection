@@ -1,3 +1,4 @@
+.DS_Store
 mowito_dl/
 MyTrainDataset/
 MyDataset/
@@ -8,3 +9,7 @@ datasets/KSDD2/test/
 datasets/KSDD2/train/
 mowito_dl/lib/
 mw_segdec-net/
+datasets/KSDD/KolektorSDD/
+__pycache__/
+
+
