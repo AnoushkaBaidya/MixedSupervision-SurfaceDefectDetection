@@ -1,15 +1,24 @@
+# System files
 .DS_Store
+
+# Local project directories
 mowito_dl/
+mw_segdec-net/
+mowito_dl/lib/
+
+# Custom datasets
 MyTrainDataset/
 MyDataset/
 SavePredictions/
 TestImages/
 RESULTS/
+
+# Dataset subdirectories
 datasets/KSDD2/test/
 datasets/KSDD2/train/
-mowito_dl/lib/
-mw_segdec-net/
 datasets/KSDD/KolektorSDD/
+
+# Python compiled files
 __pycache__/
 
 
