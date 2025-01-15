@@ -7,3 +7,5 @@ torchvision
 matplotlib~=3.2.2
 torch>=1.6
 tensorboard
+onnxruntime
+onnx

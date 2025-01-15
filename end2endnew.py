@@ -302,9 +302,9 @@ class End2End:
                 tensorboard_writer.add_scalar("Loss/Train/total", epoch_loss, epoch)
                 tensorboard_writer.add_scalar("Accuracy/Train/", epoch_correct / samples_per_epoch, epoch)
 
-            # Perform validation at regular intervals or on the last epoc
+            # Perform validation at regular intervals or on the last epoch
             if self.cfg.VALIDATE and (epoch % validation_step == 0 or epoch == num_epochs - 1):
-                validation_ap, validation_accuracy = self.eval_model(device, model, validation_set, None, False, True, False)
+                validation_ap, validation_accuracy, validation_AUROC, validation_F1Score = self.eval_model(device, model, validation_set, None, False, True, False)
                 validation_data.append((validation_ap, epoch))
                 
                 # Save the best model based on validation metric
@@ -316,6 +316,9 @@ class End2End:
                 # Log validation accuracy to TensorBoard
                 if tensorboard_writer is not None:
                     tensorboard_writer.add_scalar("Accuracy/Validation/", validation_accuracy, epoch)
+                    tensorboard_writer.add_scalar("AUROC/Validation/", validation_AUROC, epoch)
+                    tensorboard_writer.add_scalar("F1Score/Validation/", validation_F1Score, epoch)
+                    
   
                 # Check for early stopping
                 early_stopper(validation_ap)
@@ -383,8 +386,11 @@ class End2End:
             FP, FN, TP, TN = list(map(sum, [metrics["FP"], metrics["FN"], metrics["TP"], metrics["TN"]]))
             self._log(f"VALIDATION || AUC={metrics['AUC']:f}, and AP={metrics['AP']:f}, with best thr={metrics['best_thr']:f} "
                       f"at f-measure={metrics['best_f_measure']:.3f} and FP={FP:d}, FN={FN:d}, TOTAL SAMPLES={FP + FN + TP + TN:d}")
+            
+            auroc = metrics["AUC"]  # Assuming AUROC is returned as AUC
+            f1_score = metrics["best_f_measure"]  # Assuming best F1 score is returned
 
-            return metrics["AP"], metrics["accuracy"]
+            return metrics["AP"], metrics["accuracy"], auroc, f1_score
         else:
             utils.evaluate_metrics(res, self.run_path, self.run_name)
 

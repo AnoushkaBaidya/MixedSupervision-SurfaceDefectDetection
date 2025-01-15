@@ -8,10 +8,10 @@ from sklearn.metrics import roc_auc_score
 from evaluation import evaluate_decision  # Import evaluation function for performance metrics
 
 # Configuration
-MODEL_PATH = "/Users/anoushka/Desktop/Projects/SurfaceDefectDL/RESULTS/TRAININGDATASET/experiment_1/models/best_state_dict.pth"  # Path to the saved model
-TEST_IMAGES_DIR = "/Users/anoushka/Desktop/Projects/SurfaceDefectDL/TestImages/8_Nov_Test_Dataset"  # Directory containing test images
-OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/SurfaceDefectDL/SavePredictions"  # Directory to save predictions
-EVAL_OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/SurfaceDefectDL/EvaluationResults"  # Directory to save evaluation results
+MODEL_PATH = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/RESULTS/TRAININGDATASET/experiment_1/models/best_state_dict.pth"  # Path to the saved model
+TEST_IMAGES_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/TestImages/Test"  # Directory containing test images
+OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection//SavePredictions"  # Directory to save predictions
+EVAL_OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/EvaluationResults"  # Directory to save evaluation results
 INPUT_WIDTH = 256  # Input image width for model processing
 INPUT_HEIGHT = 256  # Input image height for model processing
 INPUT_CHANNELS = 3  # Number of input channels (3 for RGB, 1 for grayscale)
@@ -19,7 +19,14 @@ CLASSIFICATION_THRESHOLD = 0.5  # Threshold for binary classification
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"  # Use GPU if available, else CPU
 
 # Load Model
+# Check if the model file exists
+if not os.path.isfile(MODEL_PATH):
+    raise FileNotFoundError(f"Model file not found at {MODEL_PATH}. Please ensure the correct path is provided.")
+
+
+# Load Model
 # Initialize the model and set it to evaluation mode
+print(" Loading the Model Weights")
 model = SegDecNet(DEVICE, INPUT_WIDTH, INPUT_HEIGHT, INPUT_CHANNELS)
 model.set_gradient_multipliers(0)  # Disable gradient multipliers as we are not training
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))  # Load the model's state dictionary
