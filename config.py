@@ -102,7 +102,7 @@ class Config:
             self.INPUT_WIDTH = 256
             self.INPUT_HEIGHT = 256
             self.INPUT_CHANNELS = 3
-            self.DATASET_PATH = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/MyTrainDataset"
+            #self.DATASET_PATH = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/MyTrainDataset"
        
         else:
             raise Exception('Unknown dataset {}'.format(self.DATASET))
