@@ -141,10 +141,10 @@ class End2End:
                 # Forward pass
                 decision, output_seg_mask = model(images)
 
-                # Debug tensor shapes
-                print(f"decision shape: {decision.shape}")
-                print(f"seg_masks shape: {seg_masks.shape}")
-                print(f"seg_masks.max(dim=1)[0] shape: {seg_masks.max(dim=1)[0].shape}")
+                #Debug tensor shapes
+                #print(f"decision shape: {decision.shape}")
+                #print(f"seg_masks shape: {seg_masks.shape}")
+                #print(f"seg_masks.max(dim=1)[0] shape: {seg_masks.max(dim=1)[0].shape}")
 
                 # Ensure the seg_masks match the model's output size
                 if seg_masks.shape[2:] != output_seg_mask.shape[2:]:
