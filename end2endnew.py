@@ -155,8 +155,8 @@ class End2End:
         :param tensorboard_writer: TensorBoard writer for logging (optional).
         :param iter_index: Index of the current iteration.
         """                  
-        #images, seg_masks, seg_loss_masks, is_segmented, _ = data  # Unpack input data
-        images, seg_masks, seg_loss_masks, is_segmented = data  # Unpack input data
+        images, seg_masks, seg_loss_masks, is_segmented, _ = data  # Unpack input data
+        #images, seg_masks, seg_loss_masks, is_segmented = data  # Unpack input data
 
 
 

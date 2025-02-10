@@ -49,12 +49,12 @@ class TrainingDataset(Dataset):
                 print(f"Warning: Mask not found for {img_name}, skipping.")
                 continue
 
-            self.pos_samples.append([img_path, mask_path])
+            self.pos_samples.append([img_path, mask_path, img_name])
 
         # Store negative sample paths and metadata
         for img_name in sorted(os.listdir(negative_dir)):
             img_path = os.path.join(negative_dir, img_name)
-            self.neg_samples.append([img_path])
+            self.neg_samples.append([img_path, img_name])
 
         self.num_pos = len(self.pos_samples)
         self.num_neg = len(self.neg_samples)
@@ -72,18 +72,18 @@ class TrainingDataset(Dataset):
         """
         if index < len(self.pos_samples):
             # Load positive sample
-            img_path, mask_path = self.pos_samples[index]
+            img_path, mask_path, image_name = self.pos_samples[index]
             image = self._load_image(img_path)
             mask = self._load_image(mask_path, is_mask=True)
             loss_mask = self._generate_loss_mask(mask)
-            return image, mask, loss_mask, torch.tensor(1)  # Positive label as tensor
+            return image, mask, loss_mask, torch.tensor(1),image_name  # Positive label as tensor
         else:
             # Load negative sample
-            img_path = self.neg_samples[index - len(self.pos_samples)][0]
+            img_path,image_name = self.neg_samples[index - len(self.pos_samples)][0], self.neg_samples[index - len(self.pos_samples)][1]
             image = self._load_image(img_path)
             mask = torch.zeros(1, self.cfg.INPUT_HEIGHT, self.cfg.INPUT_WIDTH)  # Empty mask
             loss_mask = torch.ones(1, self.cfg.INPUT_HEIGHT, self.cfg.INPUT_WIDTH)  # Default loss mask
-            return image, mask, loss_mask, torch.tensor(0)  # Negative label as tensor
+            return image, mask, loss_mask, torch.tensor(0),image_name  # Negative label as tensor
 
     def _load_image(self, img_path, is_mask=False):
         """
