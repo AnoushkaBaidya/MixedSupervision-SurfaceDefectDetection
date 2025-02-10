@@ -126,9 +126,8 @@ class End2End:
         self._save_params()
 
     def compute_validation_loss(self, device, model, validation_loader, criterion_seg, criterion_dec):
-
         """
-        Compute average validation loss over the entire validation set.
+        Compute average validation loss over the entire validation set without resizing the model output.
         :param device: Device to use (CPU or GPU).
         :param model: The model being validated.
         :param validation_loader: DataLoader for the validation set.
@@ -144,20 +143,26 @@ class End2End:
                 images, seg_masks, seg_loss_masks, is_segmented, _ = data
                 images = images.to(device)
                 seg_masks = seg_masks.to(device)
-                seg_loss_masks = seg_loss_masks.to(device)
+
+                # Ensure the seg_masks match the model's output size
+                if seg_masks.shape[2:] != (output_seg_mask.shape[2:]):
+                    seg_masks_resized = F.interpolate(
+                        seg_masks, size=output_seg_mask.shape[2:], mode='bilinear', align_corners=False
+                    )
 
                 # Forward pass
                 decision, output_seg_mask = model(images)
 
                 # Calculate segmentation and decision losses
                 if is_segmented:
+                    # Match segmentation target with the model output size
                     loss_seg = criterion_seg(output_seg_mask, seg_masks)
                     loss_dec = criterion_dec(decision, seg_masks.max(dim=1)[0])
                     total_loss += (loss_seg + loss_dec).item()
                 else:
                     loss_dec = criterion_dec(decision, seg_masks.max(dim=1)[0])
                     total_loss += loss_dec.item()
-        
+
         return total_loss / len(validation_loader)
 
 
@@ -219,6 +224,9 @@ class End2End:
 
             # Forward pass
             decision, output_seg_mask = model(images_)
+            # Debug: Print tensor shapes
+            print(f"seg_masks: {seg_masks.shape}, output_seg_mask: {output_seg_mask.shape}")
+
 
             if is_segmented[sub_iter]:
                 # Compute segmentation loss
