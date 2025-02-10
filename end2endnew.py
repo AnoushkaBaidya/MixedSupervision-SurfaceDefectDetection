@@ -127,7 +127,7 @@ class End2End:
 
     def compute_validation_loss(self, device, model, validation_loader, criterion_seg, criterion_dec):
         """
-        Compute average validation loss over the entire validation set without resizing the model output.
+        Compute average validation loss over the entire validation set.
         :param device: Device to use (CPU or GPU).
         :param model: The model being validated.
         :param validation_loader: DataLoader for the validation set.
@@ -144,14 +144,14 @@ class End2End:
                 images = images.to(device)
                 seg_masks = seg_masks.to(device)
 
-                # Ensure the seg_masks match the model's output size
-                if seg_masks.shape[2:] != (output_seg_mask.shape[2:]):
-                    seg_masks_resized = F.interpolate(
-                        seg_masks, size=output_seg_mask.shape[2:], mode='bilinear', align_corners=False
-                    )
-
                 # Forward pass
                 decision, output_seg_mask = model(images)
+
+                # Ensure the seg_masks match the model's output size
+                if seg_masks.shape[2:] != output_seg_mask.shape[2:]:
+                    seg_masks = F.interpolate(
+                        seg_masks, size=output_seg_mask.shape[2:], mode='bilinear', align_corners=False
+                    )
 
                 # Calculate segmentation and decision losses
                 if is_segmented:
@@ -225,7 +225,7 @@ class End2End:
             # Forward pass
             decision, output_seg_mask = model(images_)
             # Debug: Print tensor shapes
-            print(f"seg_masks: {seg_masks.shape}, output_seg_mask: {output_seg_mask.shape}")
+            #print(f"seg_masks: {seg_masks.shape}, output_seg_mask: {output_seg_mask.shape}")
 
 
             if is_segmented[sub_iter]:
