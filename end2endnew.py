@@ -19,6 +19,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 matplotlib.use("Agg")
+from torch.utils.data import DataLoader
 
 
 LVL_ERROR = 10  # Error logging level
@@ -105,7 +106,10 @@ class End2End:
         # Load training and validation datasets
         train_loader = get_dataset("TRAIN", self.cfg)
         validation_loader = get_dataset("VAL", self.cfg)
+        print(" CHECKING ALL THE BATCHES FORMED ")
 
+        for i, batch in enumerate(train_loader):
+            print(f"Batch {i}: {[x.shape for x in batch[:3]]}")
         # Load training and validation datasets
         tensorboard_writer = SummaryWriter(log_dir=os.path.join(self.tensorboard_path, "train_logs")) if WRITE_TENSORBOARD else None
 
@@ -151,7 +155,10 @@ class End2End:
         :param tensorboard_writer: TensorBoard writer for logging (optional).
         :param iter_index: Index of the current iteration.
         """                  
-        images, seg_masks, seg_loss_masks, is_segmented, _ = data  # Unpack input data
+        #images, seg_masks, seg_loss_masks, is_segmented, _ = data  # Unpack input data
+        images, seg_masks, seg_loss_masks, is_segmented = data  # Unpack input data
+
+
 
 
         batch_size = self.cfg.BATCH_SIZE # Total batch size

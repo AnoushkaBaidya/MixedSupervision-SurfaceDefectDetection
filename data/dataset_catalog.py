@@ -24,7 +24,8 @@ def get_dataset(kind: str, cfg: Config) -> Optional[DataLoader]:
         from .input_yourdataset import YourDataset
         ds = YourDataset(kind, cfg,root=cfg.DATASET_PATH)
     elif cfg.DATASET == "TRAININGDATASET":
-        from .input_TrainingDataset import TrainingDataset
+        #from .input_TrainingDataset import TrainingDataset
+        from .input_OnDemand import TrainingDataset
         ds = TrainingDataset(kind, cfg,root=cfg.DATASET_PATH)
 
     else:
