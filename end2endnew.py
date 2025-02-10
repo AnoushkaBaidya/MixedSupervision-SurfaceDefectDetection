@@ -128,12 +128,6 @@ class End2End:
     def compute_validation_loss(self, device, model, validation_loader, criterion_seg, criterion_dec):
         """
         Compute average validation loss over the entire validation set.
-        :param device: Device to use (CPU or GPU).
-        :param model: The model being validated.
-        :param validation_loader: DataLoader for the validation set.
-        :param criterion_seg: Loss function for segmentation.
-        :param criterion_dec: Loss function for decision/classification.
-        :return: Average validation loss.
         """
         model.eval()
         total_loss = 0
@@ -147,6 +141,11 @@ class End2End:
                 # Forward pass
                 decision, output_seg_mask = model(images)
 
+                # Debug tensor shapes
+                print(f"decision shape: {decision.shape}")
+                print(f"seg_masks shape: {seg_masks.shape}")
+                print(f"seg_masks.max(dim=1)[0] shape: {seg_masks.max(dim=1)[0].shape}")
+
                 # Ensure the seg_masks match the model's output size
                 if seg_masks.shape[2:] != output_seg_mask.shape[2:]:
                     seg_masks = F.interpolate(
@@ -155,12 +154,13 @@ class End2End:
 
                 # Calculate segmentation and decision losses
                 if is_segmented:
-                    # Match segmentation target with the model output size
                     loss_seg = criterion_seg(output_seg_mask, seg_masks)
-                    loss_dec = criterion_dec(decision, seg_masks.max(dim=1)[0])
+                    seg_labels = seg_masks.view(seg_masks.size(0), -1).max(dim=1)[0]  # Flatten and get max
+                    loss_dec = criterion_dec(decision, seg_labels)
                     total_loss += (loss_seg + loss_dec).item()
                 else:
-                    loss_dec = criterion_dec(decision, seg_masks.max(dim=1)[0])
+                    seg_labels = seg_masks.view(seg_masks.size(0), -1).max(dim=1)[0]
+                    loss_dec = criterion_dec(decision, seg_labels)
                     total_loss += loss_dec.item()
 
         return total_loss / len(validation_loader)
