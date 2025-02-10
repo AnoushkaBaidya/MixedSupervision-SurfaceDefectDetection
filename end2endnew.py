@@ -154,19 +154,19 @@ class End2End:
 
                 # Calculate segmentation and decision losses
                 if is_segmented:
-                    loss_seg = criterion_seg(output_seg_mask, seg_masks)
-                    # Flatten seg_masks and ensure same shape as decision
-                    seg_labels = seg_masks.view(seg_masks.size(0), -1).max(dim=1)[0].unsqueeze(1)  # Add second dim
+                    loss_seg = criterion_seg(output_seg_mask, seg_masks).mean()  # Ensure scalar loss
+                    seg_labels = seg_masks.view(seg_masks.size(0), -1).max(dim=1)[0].unsqueeze(1)
                     print(f"seg_labels shape after unsqueeze: {seg_labels.shape}")  # Debug
-                    loss_dec = criterion_dec(decision, seg_labels)
+                    loss_dec = criterion_dec(decision, seg_labels).mean()  # Ensure scalar loss
                     total_loss += (loss_seg + loss_dec).item()
                 else:
-                    seg_labels = seg_masks.view(seg_masks.size(0), -1).max(dim=1)[0].unsqueeze(1)  # Add second dim
+                    seg_labels = seg_masks.view(seg_masks.size(0), -1).max(dim=1)[0].unsqueeze(1)
                     print(f"seg_labels shape after unsqueeze: {seg_labels.shape}")  # Debug
-                    loss_dec = criterion_dec(decision, seg_labels)
+                    loss_dec = criterion_dec(decision, seg_labels).mean()  # Ensure scalar loss
                     total_loss += loss_dec.item()
 
         return total_loss / len(validation_loader)
+
 
 
 
