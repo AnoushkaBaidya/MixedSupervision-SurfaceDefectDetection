@@ -42,23 +42,22 @@ class EarlyStopping:
         self.patience = patience  # Maximum epochs to wait without improvement
         self.delta = delta  # Minimum change to consider an improvement
         self.counter = 0  # Counts epochs without improvement
-        self.best_loss = None  # Best observed metric value
+        self.best_loss = float('inf')  # Best observed loss value (start with a very high value)
         self.early_stop = False  # Flag indicating whether to stop training
 
-    def __call__(self, val_metric):
+    def __call__(self, val_loss):
         """
-        Update the EarlyStopping state based on the validation metric.
-        :param val_metric: Current validation metric to evaluate.
+        Update the EarlyStopping state based on the validation loss.
+        :param val_loss: Current validation loss to evaluate.
         """
-        if self.best_loss is None:
-            self.best_loss = val_metric  # Set the first metric as the best metric
-        elif val_metric <= self.best_loss - self.delta:
-            self.counter += 1  # Increment counter if no sufficient improvement
-            if self.counter >= self.patience:
-                self.early_stop = True  # Trigger early stopping
-        else:
-            self.best_loss = val_metric  # Update best metric value
+        if val_loss < self.best_loss - self.delta:  # Significant improvement
+            self.best_loss = val_loss  # Update the best loss value
             self.counter = 0  # Reset counter
+        else:  # No significant improvement
+            self.counter += 1  # Increment counter
+            if self.counter >= self.patience:  # If patience exceeded
+                self.early_stop = True  # Trigger early stopping
+
 
 # End2End class handles the complete pipeline for training and evaluation
 class End2End:
@@ -110,6 +109,7 @@ class End2End:
 
         for i, batch in enumerate(train_loader):
             print(f"Batch {i}: {[x.shape for x in batch[:3]]}")
+        
         # Load training and validation datasets
         tensorboard_writer = SummaryWriter(log_dir=os.path.join(self.tensorboard_path, "train_logs")) if WRITE_TENSORBOARD else None
 
@@ -124,6 +124,41 @@ class End2End:
         self.eval(model, device, self.cfg.SAVE_IMAGES, False, False)
         # Save configuration parameters to disk
         self._save_params()
+
+    def compute_validation_loss(self, device, model, validation_loader, criterion_seg, criterion_dec):
+
+        """
+        Compute average validation loss over the entire validation set.
+        :param device: Device to use (CPU or GPU).
+        :param model: The model being validated.
+        :param validation_loader: DataLoader for the validation set.
+        :param criterion_seg: Loss function for segmentation.
+        :param criterion_dec: Loss function for decision/classification.
+        :return: Average validation loss.
+        """
+        model.eval()
+        total_loss = 0
+        with torch.no_grad():
+            for data in validation_loader:
+                # Unpack data
+                images, seg_masks, seg_loss_masks, is_segmented, _ = data
+                images = images.to(device)
+                seg_masks = seg_masks.to(device)
+                seg_loss_masks = seg_loss_masks.to(device)
+
+                # Forward pass
+                decision, output_seg_mask = model(images)
+
+                # Calculate segmentation and decision losses
+                if is_segmented:
+                    loss_seg = criterion_seg(output_seg_mask, seg_masks)
+                    loss_dec = criterion_dec(decision, seg_masks.max(dim=1)[0])
+                    total_loss += (loss_seg + loss_dec).item()
+                else:
+                    loss_dec = criterion_dec(decision, seg_masks.max(dim=1)[0])
+                    total_loss += loss_dec.item()
+        
+        return total_loss / len(validation_loader)
 
 
     def eval(self, model, device, save_images, plot_seg, reload_final):
@@ -156,11 +191,6 @@ class End2End:
         :param iter_index: Index of the current iteration.
         """                  
         images, seg_masks, seg_loss_masks, is_segmented, _ = data  # Unpack input data
-        #images, seg_masks, seg_loss_masks, is_segmented = data  # Unpack input data
-
-
-
-
         batch_size = self.cfg.BATCH_SIZE # Total batch size
         # Sub-batch size for memory optimization
         memory_fit = self.cfg.MEMORY_FIT  # Not supported yet for >1 
@@ -241,7 +271,7 @@ class End2End:
         """
         losses = [] # Track training losses
         validation_data = [] # Track validation performance
-        max_validation = -1 # Highest observed validation metric
+        max_validation = float('inf')  # Start with a very high value for validation loss
         validation_step = self.cfg.VALIDATION_N_EPOCHS  # Frequency of validation
 
         num_epochs = self.cfg.EPOCHS # Total number of training epochs
@@ -312,11 +342,17 @@ class End2End:
             # Perform validation at regular intervals or on the last epoch
             if self.cfg.VALIDATE and (epoch % validation_step == 0 or epoch == num_epochs - 1):
                 validation_ap, validation_accuracy, validation_AUROC, validation_F1Score = self.eval_model(device, model, validation_set, None, False, True, False)
+                validation_loss = self.compute_validation_loss(device, model, validation_set, criterion_seg, criterion_dec)
                 validation_data.append((validation_ap, epoch))
+                validation_data.append((validation_loss, epoch))
                 
+                # Log validation loss to TensorBoard
+                if tensorboard_writer:
+                    tensorboard_writer.add_scalar("Loss/Validation", validation_loss, epoch)
+
                 # Save the best model based on validation metric
-                if validation_ap > max_validation:
-                    max_validation = validation_ap
+                if validation_loss < max_validation:
+                    max_validation = validation_loss
                     self._save_model(model, "best_state_dict.pth")
                 model.train()   # Switch back to training mode
                 
@@ -328,7 +364,7 @@ class End2End:
                     
   
                 # Check for early stopping
-                early_stopper(validation_ap)
+                early_stopper(validation_loss)
                 if early_stopper.early_stop:
                     self._log(f"Early stopping at epoch {epoch + 1}.", LVL_INFO)
                     break
