@@ -8,10 +8,17 @@ from sklearn.metrics import roc_auc_score
 from evaluation import evaluate_decision  # Import evaluation function for performance metrics
 
 # Configuration
-MODEL_PATH = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/RESULTS/TRAININGDATASET/experiment_1/models/best_state_dict.pth"  # Path to the saved model
-TEST_IMAGES_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/TestImages/Test"  # Directory containing test images
-OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection//SavePredictions"  # Directory to save predictions
-EVAL_OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/EvaluationResults"  # Directory to save evaluation results
+MODEL_PATH = "/home/ubuntu/Projects/MixedSupervision-SurfaceDefectDetection/RESULTS/TRAININGDATASET/experiment_1/models/final_state_dict.pth"  # Path to the saved model
+TEST_IMAGES_DIR = "/home/ubuntu/Projects/TestImages/8_Nov_Test_Dataset"  # Directory containing test images
+OUTPUT_DIR = "/home/ubuntu/Projects/MixedSupervision-SurfaceDefectDetection/SavePredictions"  # Directory to save predictions
+EVAL_OUTPUT_DIR = "/home/ubuntu/Projects/MixedSupervision-SurfaceDefectDetection/EvaluationResults"  # Directory to save evaluation results
+
+#MODEL_PATH = "/Users/anoushka/Desktop/Projects/RESULTS/TRAININGDATASET/experiment_1/models/best_state_dict.pth"  # Path to the saved model
+#TEST_IMAGES_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/TestImages/8_Nov_Test_Dataset"  # Directory containing test images
+#OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection//SavePredictions"  # Directory to save predictions
+#EVAL_OUTPUT_DIR = "/Users/anoushka/Desktop/Projects/MixedSupervision-SurfaceDefectDetection/EvaluationResults"  # Directory to save evaluation results
+
+
 INPUT_WIDTH = 256  # Input image width for model processing
 INPUT_HEIGHT = 256  # Input image height for model processing
 INPUT_CHANNELS = 3  # Number of input channels (3 for RGB, 1 for grayscale)
