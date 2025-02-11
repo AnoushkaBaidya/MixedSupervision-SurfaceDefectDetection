@@ -38,6 +38,7 @@ model = SegDecNet(DEVICE, INPUT_WIDTH, INPUT_HEIGHT, INPUT_CHANNELS)
 model.set_gradient_multipliers(0)  # Disable gradient multipliers as we are not training
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))  # Load the model's state dictionary
 model.eval()  # Set model to evaluation mode to disable dropout and batch normalization updates
+model.to(DEVICE)
 
 # Ensure output directories exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)  # Create directory for predictions if it doesn't exist
