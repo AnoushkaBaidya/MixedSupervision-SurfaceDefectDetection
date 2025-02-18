@@ -290,7 +290,7 @@ class End2End:
         samples_per_epoch = len(train_loader) * self.cfg.BATCH_SIZE # Total samples processed per epoch
 
         self.set_dec_gradient_multiplier(model, 0.0) # Initialize decision gradient multiplier
-        early_stopper = EarlyStopping(patience=5, delta=0.01) # Early stopping monitor
+        early_stopper = EarlyStopping(patience=15, delta=0.01) # Early stopping monitor
 
         for epoch in range(num_epochs):
             self._log(f"Starting Epoch {epoch + 1}/{num_epochs}", LVL_INFO)
